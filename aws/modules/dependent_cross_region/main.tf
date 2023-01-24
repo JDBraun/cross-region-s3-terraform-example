@@ -16,7 +16,6 @@ resource "aws_route" "accepter_route" {
   vpc_peering_connection_id = var.accepter_connection
 }
 
-
 // PHZ
 resource "aws_route53_zone" "private" {
   provider = aws.source
