@@ -1,4 +1,4 @@
-# Standard Workspace + Unity Catalog Deployment Example
+# Cross Region S3 Terraform Workspace Deployment Example
 
 
 - This example is meant to be an example to assist with trials, proof of concepts, and a foundation for production deployments. 
@@ -7,6 +7,7 @@
 # Terraform Script
 
 - **Data Plane Creation:**
+    - VPC
     - Workspace Subnets
     - Security Groups
     - NACLs
@@ -15,7 +16,13 @@
     - S3 Root Bucket
     - Cross Account - IAM Role
     - S3 Instance Profile - IAM Role
-    - External Location - IAM Role
+
+ - **VPC Peer Creation:**   
+    - VPC
+    - VPC Peering Connection
+    - S3 Interface Endpoint
+    - Route 53 Zone
+    - A name records
 
 - **Workspace Deployment:**
     - Credential Configuration
@@ -25,10 +32,6 @@
 - **Post Workspace Deployment:**
     - Data Engineering Cluster 
     - Instance Profile Registration
-
-- **Post Workspace Deployment:**
-    - Unity Catalog - Metastore
-    - External Location 
 
 # Getting Started
 
@@ -44,11 +47,13 @@
 
 6. Run `terraform validate`
 
-7. From `aws` directory, run `terraform plan -var-file ../example.tfvars`
+7. From `aws` directory, run `terraform plan -target=module.independent_cross_region_aws_assets -var-file ../example.tfvars`
 
-8. Run `terraform apply -var-file ../example.tfvars`
+8. Run `terraform apply -target=module.independent_cross_region_aws_assets -var-file ../example.tfvars`
+
+9. Run `terraform apply -var-file ../example.tfvars`
 
 
 # Network Diagram
 
-![Architecture Diagram](https://github.com/JDBraun/standard-terraform-example/blob/master/img/Standard%20-%20Network%20Topology.png)
+![Architecture Diagram](https://github.com/JDBraun/cross-region-s3-terraform-example/blob/master/img/Cross%20Region%20S3%20-%20Network%20Topology.png)

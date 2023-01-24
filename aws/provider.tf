@@ -21,6 +21,19 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  alias = "cross"
+  region = var.cross_region
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key  
+  default_tags {
+    tags = {
+    Owner = var.resource_owner
+    Resource = var.resource_prefix
+    }
+  }
+}
+
 provider "databricks" {
   alias    = "mws"
   host     = "https://accounts.cloud.databricks.com"

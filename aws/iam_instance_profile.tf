@@ -34,7 +34,8 @@ resource "aws_iam_role_policy" "s3_instance-profile" {
                 "s3:ListBucket"
             ],
             "Resource": [
-                "arn:aws:s3:::${var.data_bucket}"
+                "arn:aws:s3:::${var.data_bucket}",
+                "arn:aws:s3:::${var.cross_region_bucket}"
             ]
             },
             {
@@ -43,7 +44,8 @@ resource "aws_iam_role_policy" "s3_instance-profile" {
                 "s3:GetObject",
             ],
             "Resource": [
-                "arn:aws:s3:::${var.data_bucket}/*"
+                "arn:aws:s3:::${var.data_bucket}/*",
+                "arn:aws:s3:::${var.cross_region_bucket}"
             ]
             }
         ]

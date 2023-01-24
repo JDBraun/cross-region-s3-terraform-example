@@ -19,18 +19,6 @@ resource "aws_subnet" "private" {
   }
 }
 
-// Public Subnet
-resource "aws_subnet" "public" {
-  vpc_id                  = aws_vpc.dataplane_vpc.id
-  count                   = length(local.public_subnets_cidr)
-  cidr_block              = element(local.public_subnets_cidr, count.index)
-  availability_zone       = element(local.availability_zones, count.index)
-  map_public_ip_on_launch = true
-  tags = {
-      Name = "${local.prefix}-public-${element(local.availability_zones, count.index)}"
-  }
-}
-
 // PrivateLink Subnet
 resource "aws_subnet" "privatelink" {
   vpc_id                  = aws_vpc.dataplane_vpc.id
@@ -46,7 +34,7 @@ resource "aws_subnet" "privatelink" {
 // Dataplane NACL
 resource "aws_network_acl" "dataplane" {
   vpc_id = aws_vpc.dataplane_vpc.id
-  subnet_ids = concat(aws_subnet.private[*].id, aws_subnet.public[*].id)
+  subnet_ids = concat(aws_subnet.private[*].id)
 
   ingress {
     protocol   = "all"
@@ -82,30 +70,6 @@ resource "aws_network_acl" "dataplane" {
   }
 }
 
-// IGW
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.dataplane_vpc.id
-  tags = {
-    Name = "${local.prefix}-igw"
-  }
-}
-
-// EIP
-resource "aws_eip" "ngw_eip" {
-  count      = length(local.public_subnets_cidr)
-  vpc        = true
-}
-
-// NGW
-resource "aws_nat_gateway" "ngw" {
-  count         = length(local.public_subnets_cidr)
-  allocation_id = element(aws_eip.ngw_eip.*.id, count.index)
-  subnet_id     = element(aws_subnet.public.*.id, count.index)
-  depends_on    = [aws_internet_gateway.igw]
-  tags = {
-    Name = "${local.prefix}-ngw-${element(local.availability_zones, count.index)}"
-  }
-}
 
 // SG
 resource "aws_security_group" "sg" {
@@ -155,57 +119,9 @@ resource "aws_route_table" "private_rt" {
   }
 }
 
-// Public RT
-resource "aws_route_table" "public_rt" {
-    count              = length(local.public_subnets_cidr)
-    vpc_id            = aws_vpc.dataplane_vpc.id
-    tags  = {
-      Name = "${local.prefix}-public-rt-${element(local.availability_zones, count.index)}"
-  }
-}
-
-// IGW RT
-resource "aws_route_table" "igw_rt" {
-  vpc_id             = aws_vpc.dataplane_vpc.id
-    tags = {
-      Name = "${local.prefix}-igw-rt"
-  }
-}
-
 // Private RT Associations
 resource "aws_route_table_association" "private" {
   count          = length(local.private_subnets_cidr)
   subnet_id      = element(aws_subnet.private.*.id, count.index)
   route_table_id = element(aws_route_table.private_rt.*.id, count.index)
-}
-
-// Public RT Associations
-resource "aws_route_table_association" "public" {
-  count          = length(local.public_subnets_cidr)
-  subnet_id      = element(aws_subnet.public.*.id, count.index)
-  route_table_id = element(aws_route_table.public_rt.*.id, count.index)
-  depends_on = [aws_subnet.public]
-}
-
-// IGW RT Associations
-resource "aws_route_table_association" "igw" {
-  gateway_id     = aws_internet_gateway.igw.id
-  route_table_id = aws_route_table.igw_rt.id
-}
-
-// Private Route
-resource "aws_route" "private" {
-  count                  = length(local.private_subnets_cidr)
-  route_table_id         = element(aws_route_table.private_rt.*.id, count.index)
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = element(aws_nat_gateway.ngw.*.id, count.index)
-}
-
-// Public Route
-resource "aws_route" "public" {
-  count                  = length(local.public_subnets_cidr)
-  route_table_id         = element(aws_route_table.public_rt.*.id, count.index)
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             =  aws_internet_gateway.igw.id 
-  depends_on             =  [aws_internet_gateway.igw]
 }

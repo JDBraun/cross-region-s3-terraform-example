@@ -52,10 +52,6 @@ variable "private_subnets_cidr" {
   type = string
 }
 
-variable "public_subnets_cidr" {
-  type = string
-}
-
 variable "privatelink_subnets_cidr" {
   type = string
 }
@@ -69,5 +65,21 @@ variable "workspace_vpce_service" {
 }
 
 variable "relay_vpce_service" {
+  type = string
+}
+
+variable "cross_region" {
+  type = string
+}
+
+variable "cross_region_vpc_cidr_range" {
+  type = string
+}
+
+variable "cross_region_subnet_cidr" {
+  type = string
+}
+
+variable "cross_region_bucket" {
   type = string
 }
