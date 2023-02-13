@@ -41,7 +41,7 @@ resource "aws_iam_role_policy" "s3_instance-profile" {
             {
             "Effect": "Allow",
             "Action": [
-                "s3:GetObject",
+                "s3:*Object",
             ],
             "Resource": [
                 "arn:aws:s3:::${var.data_bucket}/*",

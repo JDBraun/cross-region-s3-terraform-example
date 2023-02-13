@@ -3,6 +3,9 @@
 */.terraform
 .terraform.lock.hcl
 
+# environment file
+aws/example.tvars
+
 # .tfstate files
 *.tfstate
 *.tfstate.*
